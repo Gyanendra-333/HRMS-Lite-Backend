@@ -10,15 +10,10 @@ app = FastAPI(
     version="1.0"
 )
 
-# Allowed frontend origins
-origins = [
-    "https://hrms-lite-gyan.netlify.app"
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,   # allow only your frontend
-    allow_credentials=True,
+    allow_origins=["*"],   # allow all frontend URLs
+    allow_credentials=False,  # must be False when using "*"
     allow_methods=["*"],
     allow_headers=["*"],
 )
