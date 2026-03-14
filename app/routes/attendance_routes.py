@@ -11,6 +11,7 @@ VALID_STATUS = ["Present", "Absent", "Leave"]
 @router.post("/attendance", status_code=201)
 def mark_attendance(attendance: Attendance):
 
+    # Check employee exists
     employee = employee_collection.find_one(
         {"employee_id": attendance.employee_id}
     )
@@ -21,13 +22,31 @@ def mark_attendance(attendance: Attendance):
             detail="Employee does not exist"
         )
 
+    # Validate status
     if attendance.status not in VALID_STATUS:
         raise HTTPException(
             status_code=400,
             detail="Invalid attendance status"
         )
 
-    attendance_collection.insert_one(attendance.dict())
+    data = attendance.dict()
+
+    # 🔧 FIX → MongoDB date issue
+    data["date"] = str(data["date"])
+
+    # Prevent duplicate attendance for same date
+    existing = attendance_collection.find_one({
+        "employee_id": data["employee_id"],
+        "date": data["date"]
+    })
+
+    if existing:
+        raise HTTPException(
+            status_code=409,
+            detail="Attendance already marked for this date"
+        )
+
+    attendance_collection.insert_one(data)
 
     return {
         "message": "Attendance recorded successfully"

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
-from datetime import date
+from datetime import  datetime
 
 class Attendance(BaseModel):
     employee_id: str
-    date: date
+    date: datetime
     status: str
